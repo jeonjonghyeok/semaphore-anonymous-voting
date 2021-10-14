@@ -7,8 +7,14 @@ import {
 } from "semaphore-lib";
 import {
     VotingInputs,
-    UserNullifier
+    UserNullifier,
+    Tree,
+    schema
 } from "./types";
+import { Schema, model, connect, Decimal128 } from 'mongoose';
+
+// mongodb config
+connect('mongodb://localhost:27017/test',{ useUnifiedTopology: true, useNewUrlParser: true });
 
 const VERIFIER_KEY_PATH = path.join('./circuitFiles', 'verification_key.json');
 const verifierKey = JSON.parse(fs.readFileSync(VERIFIER_KEY_PATH, 'utf-8'));
@@ -18,41 +24,72 @@ let tree: any = null;
 // Array that keeps the nullifier of users that voted (to prevent double voting)
 const votedUsers: UserNullifier[] = [];
 
+const TreeModel = model<Tree>('Tree',schema);
+
 const init = () => {
     const depth = 20;
     const leavesPerNode = 5;
     const zeroValue = 0;
-
     FastSemaphore.setHasher("poseidon");
-    tree = FastSemaphore.createTree(depth, zeroValue, leavesPerNode);
+    tree = FastSemaphore.createTree(depth, zeroValue, leavesPerNode) as Tree;
+    console.log("tree = ",tree);
+    const leaves = tree.leaves
+    const root = tree.root
+    const zeros= tree.zeros
+    const filledSubtrees = tree.filledSubtrees
+    const filledPaths = tree.filledPaths
+
+    const doc = new TreeModel({
+        depth,
+        leavesPerNode,
+        zeroValue,
+        leaves,
+        root,
+        zeros,
+        filledSubtrees,
+        filledPaths
+    });
+    doc.save();
 }
 
 const register = (identityCommitment: BigInt): number => {
     if(tree.leaves.includes(identityCommitment)) throw new Error("User already registered");
-
+    // 머클트리에 아이디 추가
     tree.insert(identityCommitment);
+    // 머클트리애 아이디가 저장된 인덱스 값 리턴
     return tree.nextIndex - 1;
 }
 
+const isRegister = (identityCommitment: BigInt): boolean => {
+    if(tree.leaves.includes(identityCommitment)) return false;
+    return true;
+}
+
+// 머클트리 경로 반환
 const getWitness = (leafIndex: number) => {
     return tree.genMerklePath(leafIndex);
 }
 
 const verifyVote = async (votingInputs: VotingInputs): Promise<boolean> => {
 
+    // nullifier = 캠페인 명 + identityNullifier
+    // 사용자를 식별할 수 있음
     if(votedUsers.includes(votingInputs.nullifier)) throw new Error("Double vote");
 
+    // 투표 + 캠페인명 + 머클루트 + nullifier 로 해당 투표에 대한 증명을 만듦
     const proof: IProof = {
         proof: votingInputs.proof,
         publicSignals: [tree.root, votingInputs.nullifier, FastSemaphore.genSignalHash(votingInputs.vote), FastSemaphore.genExternalNullifier(votingInputs.campaignName)]
     };
 
+    // 키 값과 증명으로 검증
     const status = await FastSemaphore.verifyProof(verifierKey, proof);
 
     if(!status) {
         throw new Error("Invalid vote proof");
     }
-
+    // 올바른 증명이면 투표 성공
+    // votedUsers에 nullifier를 추가시킴.
     votedUsers.push(votingInputs.nullifier);
     return true;
 
@@ -62,5 +99,6 @@ export {
     init,
     register,
     getWitness,
-    verifyVote
+    verifyVote,
+    isRegister
 }

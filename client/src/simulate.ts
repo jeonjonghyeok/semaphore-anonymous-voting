@@ -1,6 +1,6 @@
 // Single user vote
 
-import {register, vote, getCampaigns} from './api'
+import {isResister,register, vote, getCampaigns, getWitness} from './api'
 import {
     FastSemaphore,
     Identity
@@ -15,6 +15,20 @@ const simulateVotingMultipleUsers = async () => {
     // Register user 1 to the voting app
     const leafIndexUser1 = await register(identityCommitmentUser1);
     console.log("User 1 registered successfully!\n");
+    const witness = await getWitness(leafIndexUser1)
+    console.log(witness)
+
+    // 유저가 존재하는지 확인
+    try{
+        const isUser = await isResister(identityCommitmentUser1);
+        if (isUser) {
+            console.log("유저 존재");
+        } else {
+            console.log("유저가 존재하지 않음.");
+        }
+    } catch(e) {
+        console.log("isResister 오류");
+    }
 
     // Try to double register
     try {
@@ -52,6 +66,7 @@ const simulateVotingMultipleUsers = async () => {
     console.log("Voting stats:");
 
     console.log(campaigns);
+
 
 
 };
