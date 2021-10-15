@@ -2,7 +2,7 @@
   "name": "server",
   "version": "1.0.0",
   "description": "Voting server",
-  "main": "dist/src/routes/index.js",
+  "main": "dist/src/app.js",
   "author": "Blagoj Dimovski",
   "license": "MIT",
   "dependencies": {

@@ -14,8 +14,22 @@ const API_BASE_URL = 'http://localhost:8080'
 
 FastSemaphore.setHasher('poseidon');
 
-const isResister = async (identityCommitment: BigInt) => {
-    const result = await axios.post(`${API_BASE_URL}/isRegister`, {'identity': identityCommitment.toString()})
+const registVote = async (voteName: string, voteOptions: string[], voteStats: object) => {
+
+    const registVoteParameters = {
+        voteName,
+        voteOptions,
+        voteStats
+    }
+
+    await axios.post(`${API_BASE_URL}/registVote`, registVoteParameters)
+
+};
+
+const isValid = async (identityCommitment: BigInt) => {
+    console.log("isValid call")
+    const result = await axios.get(`${API_BASE_URL}/isValid/${identityCommitment.toString}`);
+    console.log("isValid done")
     console.log(result.data)
     return result.data;
 };
@@ -70,6 +84,7 @@ export {
     getCampaigns,
     vote,
     getWitness,
-    isResister
+    isValid,
+    registVote
 }
 

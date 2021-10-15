@@ -29,10 +29,11 @@ const TreeModel = model<Tree>('Tree',schema);
 const doc = new TreeModel();
 
 const init = () => {
+    FastSemaphore.setHasher("poseidon");
+    // 싱글톤
     const depth = 20;
     const leavesPerNode = 5;
     const zeroValue = 0;
-    FastSemaphore.setHasher("poseidon");
     tree = FastSemaphore.createTree(depth, zeroValue, leavesPerNode) as Tree;
     console.log("tree = ",tree);
     doc.depth = depth;
@@ -45,21 +46,28 @@ const init = () => {
     doc.filledPaths = tree.filledPaths;
 
     doc.save();
-    console.log(doc.root);
 }
 
 const register = (identityCommitment: BigInt): number => {
     if(tree.leaves.includes(identityCommitment)) throw new Error("User already registered");
     // 머클트리에 아이디 추가
     tree.insert(identityCommitment);
+    console.log(identityCommitment);
+    doc.root = tree.root;
+    doc.nextIndex = tree.nextIndex;
+    doc.filledSubtrees = tree.filledSubtrees;
+    doc.leaves = tree.leaves;
+    doc.save();
     // 머클트리애 아이디가 저장된 인덱스 값 리턴
     return tree.nextIndex - 1;
 }
 
-const isRegister = (identityCommitment: BigInt): boolean => {
-
-    if(doc.leaves.includes(identityCommitment)) return false;
-    return true;
+const isValid = (identityCommitment: BigInt): boolean => {
+    console.log(tree.leaves.includes(identityCommitment));
+    console.log(identityCommitment);
+    console.log(tree.leaves);
+    if(tree.leaves.includes(identityCommitment)) return true;
+    return false;
 }
 
 // 머클트리 경로 반환
@@ -92,10 +100,11 @@ const verifyVote = async (votingInputs: VotingInputs): Promise<boolean> => {
 
 }
 
+
 export {
     init,
     register,
     getWitness,
     verifyVote,
-    isRegister
+    isValid
 }
