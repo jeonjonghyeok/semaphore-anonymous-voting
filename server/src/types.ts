@@ -1,4 +1,4 @@
-import { Schema, model, connect, Decimal128 } from 'mongoose';
+import { Schema, model, connect, Decimal128, SchemaTypes } from 'mongoose';
 
 type UserNullifier = BigInt | string;
 
@@ -15,27 +15,31 @@ interface VotingInputs {
     campaignName: string;
 }
 interface Tree {
-    leaves: Decimal128[],
-    zeros: Decimal128[],
-    filledSubtrees: Decimal128[][],
     leavesPerNode: number,
     depth: number,
+    zeroValue: number,
+    root: BigInt,
     nextIndex: number,
-    zeroValue: string,
-    root: Decimal128,
-    filledPaths: object,
+    leaves: BigInt[],
+    zeros: BigInt[],
+    value: BigInt,
+    filledSubtrees: BigInt[][],
+    filledPaths: any,
+    hashFunc: (leaves: BigInt[]) => BigInt
 }
 
 const schema = new Schema<Tree>({
-    leaves: [String],
-    zeros: [String],
-    filledSubtrees: [[String]],
     leavesPerNode: Number,
     depth: Number,
-    nextIndex: Number,
-    zeroValue: String,
+    zeroValue: Number,
     root: String,
-    filledPaths: Object
+    nextIndex: Number,
+    leaves: [String],
+    zeros: [String],
+    value: String,
+    filledSubtrees: [[String]],
+    filledPaths: Object,
+    // hashFunc: { "type": "Function" }
 });
 
 

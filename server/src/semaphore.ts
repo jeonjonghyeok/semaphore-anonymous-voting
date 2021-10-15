@@ -26,6 +26,8 @@ const votedUsers: UserNullifier[] = [];
 
 const TreeModel = model<Tree>('Tree',schema);
 
+const doc = new TreeModel();
+
 const init = () => {
     const depth = 20;
     const leavesPerNode = 5;
@@ -33,23 +35,17 @@ const init = () => {
     FastSemaphore.setHasher("poseidon");
     tree = FastSemaphore.createTree(depth, zeroValue, leavesPerNode) as Tree;
     console.log("tree = ",tree);
-    const leaves = tree.leaves
-    const root = tree.root
-    const zeros= tree.zeros
-    const filledSubtrees = tree.filledSubtrees
-    const filledPaths = tree.filledPaths
+    doc.depth = depth;
+    doc.leavesPerNode = leavesPerNode;
+    doc.zeroValue = zeroValue;
+    doc.leaves = tree.leaves;
+    doc.root = tree.root;
+    doc.zeros= tree.zeros;
+    doc.filledSubtrees = tree.filledSubtrees;
+    doc.filledPaths = tree.filledPaths;
 
-    const doc = new TreeModel({
-        depth,
-        leavesPerNode,
-        zeroValue,
-        leaves,
-        root,
-        zeros,
-        filledSubtrees,
-        filledPaths
-    });
     doc.save();
+    console.log(doc.root);
 }
 
 const register = (identityCommitment: BigInt): number => {
@@ -61,7 +57,8 @@ const register = (identityCommitment: BigInt): number => {
 }
 
 const isRegister = (identityCommitment: BigInt): boolean => {
-    if(tree.leaves.includes(identityCommitment)) return false;
+
+    if(doc.leaves.includes(identityCommitment)) return false;
     return true;
 }
 
