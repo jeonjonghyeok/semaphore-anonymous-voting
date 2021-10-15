@@ -14,5 +14,11 @@
     "build": "yarn workspaces run build",
     "server": "yarn workspace server run start",
     "simulateVoting": "yarn workspace client run simulateVoting"
+  },
+  "dependencies": {
+    "mongoose": "^6.0.9"
+  },
+  "devDependencies": {
+    "typeorm": "^0.2.38"
   }
 }

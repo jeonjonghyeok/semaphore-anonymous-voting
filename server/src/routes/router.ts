@@ -3,7 +3,7 @@ import { FastSemaphore } from "semaphore-lib";
 // import { connect } from "http2";
 import { init, getWitness, register, verifyVote } from '../semaphore'
 import { VotingCampaign, VotingInputs } from '../types'
-import { isRegister } from "../semaphore";
+import { isValid } from "../semaphore";
 
 
 // init voting
@@ -22,9 +22,10 @@ const Router = {
     home(req, res) {
         res.send("Welcome to Anon voting campaigns v1!");
     },
-    isResister(req, res) {
+    isValid(req, res ) {
         try {
-            res.json(isRegister(req.identityCommitment));
+            const identityCommitment = BigInt(req.params.identity)
+            res.json(isValid(identityCommitment));
         } catch (e: any) {
             res.status(500).json({'error':e.message})
         }
@@ -105,6 +106,28 @@ const Router = {
                 res.status(500);
             }
             res.json({ 'error': e.message });
+        }
+    },
+    registVote(req,res) {
+        try {
+            const campaign: VotingCampaign = {
+                name: req.body.name,
+                // options: ['yes', 'no'],
+                options: req.body.options,
+                // stats: {
+                //     'yes': 0,
+                //     'no': 0
+                // }
+                stats: req.body.stats,
+            }
+            votingCampaigns.push(campaign);
+        } catch (e: any) {
+            if (e.message === 'Invalid voting campaign name') {
+                res.status(400)
+            } else {
+                res.status(500)
+            }
+            res.json({'error': e.message})
         }
     }
 }
