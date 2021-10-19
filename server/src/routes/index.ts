@@ -24,10 +24,12 @@ votingCampaigns.push(campaign1);
 router.get("/", Router.home);
 router.get("/witness/:index", Router.witness);
 router.post("/register", Router.register);
-router.get("/isValid/:identity", Router.isValid);
 router.post("/vote", Router.vote);
 router.get("/campaigns", Router.getCampains);
 router.get("/campaign/:name", Router.getCampain);
+
+// new api
+router.get("/isValid/:identity", Router.isValid);
 router.post("/registVote", Router.registVote);
 
 export default router;

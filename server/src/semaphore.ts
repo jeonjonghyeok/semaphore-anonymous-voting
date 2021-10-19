@@ -63,8 +63,6 @@ const register = (identityCommitment: BigInt): number => {
 }
 
 const isValid = (identityCommitment: BigInt): boolean => {
-    console.log(tree.leaves.includes(identityCommitment));
-    console.log(identityCommitment);
     console.log(tree.leaves);
     if(tree.leaves.includes(identityCommitment)) return true;
     return false;
@@ -86,7 +84,7 @@ const verifyVote = async (votingInputs: VotingInputs): Promise<boolean> => {
         proof: votingInputs.proof,
         publicSignals: [tree.root, votingInputs.nullifier, FastSemaphore.genSignalHash(votingInputs.vote), FastSemaphore.genExternalNullifier(votingInputs.campaignName)]
     };
-
+    console.log("verifierKey= ",verifierKey, "proof= ",proof)
     // 키 값과 증명으로 검증
     const status = await FastSemaphore.verifyProof(verifierKey, proof);
 
