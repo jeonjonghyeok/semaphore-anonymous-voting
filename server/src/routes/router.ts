@@ -70,12 +70,10 @@ const Router = {
             if (typeof votingInputs.nullifier === 'string') {
                 votingInputs.nullifier = BigInt(votingInputs.nullifier);
             }
-            console.log(votingInputs);
 
             await verifyVote(votingInputs);
 
             voteCampaign.stats[votingInputs.vote] += 1;
-            console.log(voteCampaign);
             res.json({ 'success': true });
 
         } catch (e: any) {

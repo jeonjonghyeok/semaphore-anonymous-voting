@@ -45,11 +45,7 @@ const simulateVotingMultipleUsers = async () => {
     console.log("create vote successfully!\n");
 
     // 투표하기
-    try {
-        await vote(identityUser1, leafIndexUser1, 'campaign1', 'no');
-    } catch(e: any) {
-        console.log(e.message)
-    }
+    await vote(identityUser1, leafIndexUser1, 'campaign1', 'no');
     // console.log("User 2 voted successfully!\n");
     // await vote(identityUser1, leafIndexUser1, 'campaign1', 'no');
     // console.log("-----------------------------------------------")
@@ -70,10 +66,10 @@ const simulateVotingMultipleUsers = async () => {
     // console.log("User 2 voted successfully!\n");
 
     // // Get campaign results
-    const campaigns = await getCampaigns();
-    console.log("Voting stats:");
+    // const campaigns = await getCampaigns();
+    // console.log("Voting stats:");
 
-    console.log(campaigns);
+    // console.log(campaigns);
 
 
 

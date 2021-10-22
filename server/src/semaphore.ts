@@ -67,8 +67,10 @@ const verifyVote = async (votingInputs: VotingInputs): Promise<boolean> => {
     console.log("verifierKey= ",verifierKey, "proof= ",proof)
     // 키 값과 증명으로 검증
     const status = await FastSemaphore.verifyProof(verifierKey, proof);
+    console.log("status=",status)
 
     if(!status) {
+        console.log("Invalid vote proof");
         throw new Error("Invalid vote proof");
     }
     // 올바른 증명이면 투표 성공
