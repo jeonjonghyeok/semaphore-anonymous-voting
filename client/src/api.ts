@@ -14,23 +14,10 @@ const API_BASE_URL = 'http://localhost:8080'
 
 FastSemaphore.setHasher('poseidon');
 
-const registVote = async (voteName: string, voteOptions: string[], voteStats: object) => {
 
-    const registVoteParameters = {
-        voteName,
-        voteOptions,
-        voteStats
-    }
-
-    await axios.post(`${API_BASE_URL}/registVote`, registVoteParameters)
-
-};
 
 const isValid = async (identityCommitment: BigInt) => {
-    console.log("isValid call")
-    const result = await axios.get(`${API_BASE_URL}/isValid/${identityCommitment.toString}`);
-    console.log("isValid done")
-    console.log(result.data)
+    const result = await axios.get(`${API_BASE_URL}/isValid/${identityCommitment}`);
     return result.data;
 };
 
@@ -49,7 +36,7 @@ const getCampaigns = async (): Promise<object> => {
 // Nullifier: 투표한 사람
 // 캠페인 명을 다른 값으로 대체하면 될 것 같습니다.
 const vote = async (identity: Identity, leafIndex: number, campaignName: string, voteOption: string) => {
-
+    console.log("vote call");
     const witness = await getWitness(leafIndex);
     const externalNullifier = FastSemaphore.genExternalNullifier(campaignName);
     const fullProof = await FastSemaphore.genProofFromBuiltTree(identity, witness, externalNullifier , voteOption, CIRCUIT_PATH, PROVER_KEY_PATH);
@@ -61,9 +48,20 @@ const vote = async (identity: Identity, leafIndex: number, campaignName: string,
         vote: voteOption,
         campaignName
     }
+    console.log("voteParameters=",voteParameters);
 
     await axios.post(`${API_BASE_URL}/vote`, voteParameters)
+};
+const registVote = async (voteName: string, voteOptions: string[], voteStats: object) => {
+    console.log("registVote call")
+    const registVoteParameters = {
+        voteName,
+        voteOptions,
+        voteStats
+    }
+    console.log("registVoteParams=",registVoteParameters);
 
+    await axios.post(`${API_BASE_URL}/registVote`, registVoteParameters);
 };
 
 // 머클트리의 index를 가지고 경로값을 불러옴.

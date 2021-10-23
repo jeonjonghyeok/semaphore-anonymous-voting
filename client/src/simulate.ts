@@ -16,13 +16,11 @@ const simulateVotingMultipleUsers = async () => {
     const leafIndexUser1 = await register(identityCommitmentUser1);
     console.log("User 1 registered successfully!\n");
 
-    // const witness = await getWitness(leafIndexUser1)
-    // console.log(witness)
+    const witness = await getWitness(leafIndexUser1)
+    console.log("witness=",witness)
 
     // 유저가 존재하는지 확인
-    console.log(identityCommitmentUser1);
     const isUser = await isValid(identityCommitmentUser1);
-    console.log(identityCommitmentUser1);
     if (isUser) {
         console.log("유저 존재");
     } else {
@@ -37,21 +35,22 @@ const simulateVotingMultipleUsers = async () => {
     //     console.log("Double registrations are not allowed!\n");
     // }
 
-    // Vote user 1
+    // 투표 생성하기
     const options = ['cat','dog']
     const stats = {
-        'cat': Number,
-        'dog': Number
+        'cat': 0,
+        'dog': 0
     }
-    await registVote('like animals', options, stats);
-    console.log("User 1 voted successfully!\n");
+    await registVote('animals', options, stats);
+    console.log("create vote successfully!\n");
 
-    // // Try to double vote
-    // try {
-    //     await vote(identityUser1, leafIndexUser1, 'campaign1', 'no');
-    // } catch (e) {
-    //     console.log("Double voting is not allowed!\n");
-    // }
+    // 투표하기
+    await vote(identityUser1, leafIndexUser1, 'campaign1', 'no');
+    // console.log("User 2 voted successfully!\n");
+    // await vote(identityUser1, leafIndexUser1, 'campaign1', 'no');
+    // console.log("-----------------------------------------------")
+    // await vote(identityUser1, leafIndexUser1, 'animals', 'cat');
+
 
 
     // const identityUser2: Identity = FastSemaphore.genIdentity();

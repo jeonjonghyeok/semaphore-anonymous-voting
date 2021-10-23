@@ -1,10 +1,8 @@
 import express from "express";
 import { FastSemaphore } from "semaphore-lib";
 // import { connect } from "http2";
-import { init, getWitness, register, verifyVote } from '../semaphore'
+import { isValid, init, getWitness, register, verifyVote } from '../semaphore'
 import { VotingCampaign, VotingInputs } from '../types'
-import { isValid } from "../semaphore";
-
 
 // init voting
 const votingCampaigns: VotingCampaign[] = [];
@@ -108,19 +106,22 @@ const Router = {
             res.json({ 'error': e.message });
         }
     },
-    registVote(req,res) {
+    registVote(req,res,next) {
         try {
             const campaign: VotingCampaign = {
-                name: req.body.name,
+                name: req.body.voteName,
                 // options: ['yes', 'no'],
-                options: req.body.options,
+                options: req.body.voteOptions,
                 // stats: {
                 //     'yes': 0,
                 //     'no': 0
                 // }
-                stats: req.body.stats,
+                stats: req.body.voteStats,
             }
             votingCampaigns.push(campaign);
+            console.log(votingCampaigns);
+            res.json({ 'success': true });
+
         } catch (e: any) {
             if (e.message === 'Invalid voting campaign name') {
                 res.status(400)

@@ -11,10 +11,7 @@ import {
     Tree,
     schema
 } from "./types";
-import { Schema, model, connect, Decimal128 } from 'mongoose';
 
-// mongodb config
-connect('mongodb://localhost:27017/test',{ useUnifiedTopology: true, useNewUrlParser: true });
 
 const VERIFIER_KEY_PATH = path.join('./circuitFiles', 'verification_key.json');
 const verifierKey = JSON.parse(fs.readFileSync(VERIFIER_KEY_PATH, 'utf-8'));
@@ -24,9 +21,7 @@ let tree: any = null;
 // Array that keeps the nullifier of users that voted (to prevent double voting)
 const votedUsers: UserNullifier[] = [];
 
-const TreeModel = model<Tree>('Tree',schema);
 
-const doc = new TreeModel();
 
 const init = () => {
     FastSemaphore.setHasher("poseidon");
@@ -36,16 +31,6 @@ const init = () => {
     const zeroValue = 0;
     tree = FastSemaphore.createTree(depth, zeroValue, leavesPerNode) as Tree;
     console.log("tree = ",tree);
-    doc.depth = depth;
-    doc.leavesPerNode = leavesPerNode;
-    doc.zeroValue = zeroValue;
-    doc.leaves = tree.leaves;
-    doc.root = tree.root;
-    doc.zeros= tree.zeros;
-    doc.filledSubtrees = tree.filledSubtrees;
-    doc.filledPaths = tree.filledPaths;
-
-    doc.save();
 }
 
 const register = (identityCommitment: BigInt): number => {
@@ -53,18 +38,11 @@ const register = (identityCommitment: BigInt): number => {
     // 머클트리에 아이디 추가
     tree.insert(identityCommitment);
     console.log(identityCommitment);
-    doc.root = tree.root;
-    doc.nextIndex = tree.nextIndex;
-    doc.filledSubtrees = tree.filledSubtrees;
-    doc.leaves = tree.leaves;
-    doc.save();
     // 머클트리애 아이디가 저장된 인덱스 값 리턴
     return tree.nextIndex - 1;
 }
 
 const isValid = (identityCommitment: BigInt): boolean => {
-    console.log(tree.leaves.includes(identityCommitment));
-    console.log(identityCommitment);
     console.log(tree.leaves);
     if(tree.leaves.includes(identityCommitment)) return true;
     return false;
@@ -86,11 +64,13 @@ const verifyVote = async (votingInputs: VotingInputs): Promise<boolean> => {
         proof: votingInputs.proof,
         publicSignals: [tree.root, votingInputs.nullifier, FastSemaphore.genSignalHash(votingInputs.vote), FastSemaphore.genExternalNullifier(votingInputs.campaignName)]
     };
-
+    console.log("verifierKey= ",verifierKey, "proof= ",proof)
     // 키 값과 증명으로 검증
     const status = await FastSemaphore.verifyProof(verifierKey, proof);
+    console.log("status=",status)
 
     if(!status) {
+        console.log("Invalid vote proof");
         throw new Error("Invalid vote proof");
     }
     // 올바른 증명이면 투표 성공
