@@ -8,10 +8,9 @@ import {
 import {
     VotingInputs,
     UserNullifier,
-    // Tree,
+    IncrementalQuinTree,
     // schema
 } from "./types";
-
 
 const VERIFIER_KEY_PATH = path.join('./circuitFiles', 'verification_key.json');
 const verifierKey = JSON.parse(fs.readFileSync(VERIFIER_KEY_PATH, 'utf-8'));
@@ -21,15 +20,13 @@ let tree: any = null;
 // Array that keeps the nullifier of users that voted (to prevent double voting)
 const votedUsers: UserNullifier[] = [];
 
-
-
 const init = () => {
     FastSemaphore.setHasher("poseidon");
     // 싱글톤
     const depth = 20;
     const leavesPerNode = 5;
     const zeroValue = 0;
-    tree = FastSemaphore.createTree(depth, zeroValue, leavesPerNode);
+    tree = FastSemaphore.createTree(depth, zeroValue, leavesPerNode) as IncrementalQuinTree;
     console.log("tree = ",tree);
 }
 
@@ -37,13 +34,11 @@ const register = (identityCommitment: BigInt): number => {
     if(tree.leaves.includes(identityCommitment)) throw new Error("User already registered");
     // 머클트리에 아이디 추가
     tree.insert(identityCommitment);
-    console.log(identityCommitment);
     // 머클트리애 아이디가 저장된 인덱스 값 리턴
     return tree.nextIndex - 1;
 }
 
 const isValid = (identityCommitment: BigInt): boolean => {
-    console.log(tree.leaves);
     if(tree.leaves.includes(identityCommitment)) return true;
     return false;
 }
@@ -64,10 +59,8 @@ const verifyVote = async (votingInputs: VotingInputs): Promise<boolean> => {
         proof: votingInputs.proof,
         publicSignals: [tree.root, votingInputs.nullifier, FastSemaphore.genSignalHash(votingInputs.vote), FastSemaphore.genExternalNullifier(votingInputs.campaignName)]
     };
-    console.log("verifierKey= ",verifierKey, "proof= ",proof)
     // 키 값과 증명으로 검증
     const status = await FastSemaphore.verifyProof(verifierKey, proof);
-    console.log("status=",status)
 
     if(!status) {
         console.log("Invalid vote proof");
