@@ -8,8 +8,8 @@ import {
 import {
     VotingInputs,
     UserNullifier,
-    Tree,
-    schema
+    // Tree,
+    // schema
 } from "./types";
 
 
@@ -29,7 +29,7 @@ const init = () => {
     const depth = 20;
     const leavesPerNode = 5;
     const zeroValue = 0;
-    tree = FastSemaphore.createTree(depth, zeroValue, leavesPerNode) as Tree;
+    tree = FastSemaphore.createTree(depth, zeroValue, leavesPerNode);
     console.log("tree = ",tree);
 }
 
