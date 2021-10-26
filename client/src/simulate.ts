@@ -46,7 +46,7 @@ const simulateVotingMultipleUsers = async () => {
 
     // 투표하기
     await vote(identityUser1, leafIndexUser1, 'campaign1', 'no');
-    await vote(identityUser1, leafIndexUser1, 'animals', 'cat');
+    // await vote(identityUser1, leafIndexUser1, 'animals', 'cat');
     // console.log("User 2 voted successfully!\n");
     // await vote(identityUser1, leafIndexUser1, 'campaign1', 'no');
     // console.log("-----------------------------------------------")
