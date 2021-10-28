@@ -1,11 +1,16 @@
 import express from "express";
 import { FastSemaphore } from "semaphore-lib";
+
 // import { connect } from "http2";
 import { isValid, init, getWitness, register, verifyVote } from '../semaphore'
-import { VotingCampaign, VotingInputs } from '../types'
+import { VotingCampaign, VotingInputs, User } from '../types'
+
+import * as jwt from 'jsonwebtoken'
 
 // init voting
 const votingCampaigns: VotingCampaign[] = [];
+const users: User[] = [];
+
 const campaign1: VotingCampaign = {
     name: 'campaign1',
     options: ['yes', 'no'],
@@ -14,11 +19,30 @@ const campaign1: VotingCampaign = {
         'no': 0
     }
 }
+
 votingCampaigns.push(campaign1);
 
 const Router = {
     home(req, res) {
         res.send("Welcome to Anon voting campaigns v1!");
+    },
+    item(req,res, next) {
+        try {
+            const voteCampaign = votingCampaigns.find(campaign => campaign.name === req.body.campaignName);
+
+            if (!voteCampaign) throw new Error("Invalid voting campaign");
+            voteCampaign.stats[req.body.item] = 0;
+            voteCampaign.options.push(req.body.item);
+
+            res.json({ 'voteCampaign': voteCampaign });
+        } catch (e: any) {
+            if (e.message === 'User already registered') {
+                res.status(400)
+            } else {
+                res.status(500)
+            }
+            res.json({'error': e.message})
+        }
     },
     isValid(req, res ) {
         try {
@@ -49,7 +73,36 @@ const Router = {
         try {
             const identityCommitment = BigInt(req.body.identity);
             const index = register(identityCommitment);
-            res.json({ 'index': index });
+            const user: User = {
+                name: req.body.name,
+                email: req.body.email,
+                hashedPassword: req.body.password,
+                identity: req.body.identity,
+                identityCommitment
+            }
+            const token = jwt.sign({email : user.email, name : user.name}, 'signal', {
+                expiresIn : '2day'
+            });
+            users.push(user);
+            res.json({ 'token': token });
+        } catch (e: any) {
+            if (e.message === 'User already registered') {
+                res.status(400)
+            } else {
+                res.status(500)
+            }
+            res.json({'error': e.message})
+        }
+    },
+    login(req,res, next) {
+        try {
+            const findedUser = users.find(user => user.email === req.body.email);
+            if (!findedUser) throw new Error("This user is not exist");
+            if (!(findedUser.hashedPassword === req.body.password)) throw new Error("invalid password");
+            const token = jwt.sign({email : findedUser.email, name : findedUser.name}, 'signal', {
+                expiresIn : '2day'
+            });
+            res.json({ 'token': token });
         } catch (e: any) {
             if (e.message === 'User already registered') {
                 res.status(400)

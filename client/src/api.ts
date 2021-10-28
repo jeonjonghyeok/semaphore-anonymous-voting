@@ -14,17 +14,35 @@ const API_BASE_URL = 'http://localhost:8080'
 
 FastSemaphore.setHasher('poseidon');
 
-
+// 투표 아이템 추가하기
+const addItem = async (campaignName: string, item: string) => {
+    const result = await axios.post(`${API_BASE_URL}/item`, {'campaignName': campaignName,
+'item':item,})
+    return result.data;
+}
 
 const isValid = async (identityCommitment: BigInt) => {
     const result = await axios.get(`${API_BASE_URL}/isValid/${identityCommitment}`);
     return result.data;
 };
 
-const register = async (identityCommitment: BigInt) => {
-    const result = await axios.post(`${API_BASE_URL}/register`, {'identity': identityCommitment.toString()})
-    return result.data.index;
+const register = async (identityCommitment: BigInt, name: string, email: string, password: string) => {
+    const result = await axios.post(`${API_BASE_URL}/register`, {
+        'identity': identityCommitment.toString(),
+        'name': name,
+        'email': email,
+        'password': password
+})
+    return result.data.token;
 };
+const login = async (email: string, password: string) => {
+    const result = await axios.post(`${API_BASE_URL}/login`, {
+        'email': email,
+        'password': password
+})
+    return result.data.token;
+};
+
 
 // 투표할 수 있는 캠페인 리스트 불러오기
 const getCampaigns = async (): Promise<object> => {
@@ -83,6 +101,8 @@ export {
     vote,
     getWitness,
     isValid,
-    registVote
+    registVote,
+    addItem,
+    login
 }
 
