@@ -14,7 +14,12 @@ const API_BASE_URL = 'http://localhost:8080'
 
 FastSemaphore.setHasher('poseidon');
 
-
+// 투표 아이템 추가하기
+const addItem = async (campaignName: string, item: string) => {
+    const result = await axios.post(`${API_BASE_URL}/item`, {'campaignName': campaignName,
+'item':item,})
+    return result.data;
+}
 
 const isValid = async (identityCommitment: BigInt) => {
     const result = await axios.get(`${API_BASE_URL}/isValid/${identityCommitment}`);
@@ -83,6 +88,7 @@ export {
     vote,
     getWitness,
     isValid,
-    registVote
+    registVote,
+    addItem
 }
 

@@ -1,6 +1,6 @@
 // Single user vote
 
-import {registVote,isValid, register, vote, getCampaigns, getWitness} from './api'
+import {registVote,isValid, register, vote, getCampaigns, getWitness, addItem} from './api'
 import {
     FastSemaphore,
     Identity
@@ -44,6 +44,9 @@ const simulateVotingMultipleUsers = async () => {
     await registVote('animals', options, stats);
     console.log("create vote successfully!\n");
 
+    // 투표 옵션 추가하기
+    await addItem('animals', 'lion');
+
     // 투표하기
     await vote(identityUser1, leafIndexUser1, 'campaign1', 'no');
     // await vote(identityUser1, leafIndexUser1, 'animals', 'cat');
@@ -67,10 +70,10 @@ const simulateVotingMultipleUsers = async () => {
     // console.log("User 2 voted successfully!\n");
 
     // // Get campaign results
-    // const campaigns = await getCampaigns();
-    // console.log("Voting stats:");
+    const campaigns = await getCampaigns();
+    console.log("Voting stats:");
 
-    // console.log(campaigns);
+    console.log(campaigns);
 
 
 

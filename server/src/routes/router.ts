@@ -6,6 +6,7 @@ import { VotingCampaign, VotingInputs } from '../types'
 
 // init voting
 const votingCampaigns: VotingCampaign[] = [];
+
 const campaign1: VotingCampaign = {
     name: 'campaign1',
     options: ['yes', 'no'],
@@ -19,6 +20,23 @@ votingCampaigns.push(campaign1);
 const Router = {
     home(req, res) {
         res.send("Welcome to Anon voting campaigns v1!");
+    },
+    item(req,res, next) {
+        try {
+            const voteCampaign = votingCampaigns.find(campaign => campaign.name === req.body.campaignName);
+
+            if (!voteCampaign) throw new Error("Invalid voting campaign");
+            voteCampaign.stats[req.body.item] = 0;
+
+            res.json({ 'voteCampaign': voteCampaign });
+        } catch (e: any) {
+            if (e.message === 'User already registered') {
+                res.status(400)
+            } else {
+                res.status(500)
+            }
+            res.json({'error': e.message})
+        }
     },
     isValid(req, res ) {
         try {
