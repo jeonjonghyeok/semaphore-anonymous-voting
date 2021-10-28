@@ -26,10 +26,23 @@ const isValid = async (identityCommitment: BigInt) => {
     return result.data;
 };
 
-const register = async (identityCommitment: BigInt) => {
-    const result = await axios.post(`${API_BASE_URL}/register`, {'identity': identityCommitment.toString()})
-    return result.data.index;
+const register = async (identityCommitment: BigInt, name: string, email: string, password: string) => {
+    const result = await axios.post(`${API_BASE_URL}/register`, {
+        'identity': identityCommitment.toString(),
+        'name': name,
+        'email': email,
+        'password': password
+})
+    return result.data.token;
 };
+const login = async (email: string, password: string) => {
+    const result = await axios.post(`${API_BASE_URL}/login`, {
+        'email': email,
+        'password': password
+})
+    return result.data.token;
+};
+
 
 // 투표할 수 있는 캠페인 리스트 불러오기
 const getCampaigns = async (): Promise<object> => {
@@ -89,6 +102,7 @@ export {
     getWitness,
     isValid,
     registVote,
-    addItem
+    addItem,
+    login
 }
 

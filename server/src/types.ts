@@ -1,4 +1,7 @@
 import { Schema, model, connect, Decimal128, SchemaTypes } from 'mongoose';
+import {
+    Identity
+} from "semaphore-lib";
 
 type UserNullifier = BigInt | string;
 
@@ -46,11 +49,20 @@ const schema = new Schema<IncrementalQuinTree>({
     // hashFunc: { "type": "Function" }
 });
 
+// user
+interface User {
+    name: string
+    email: string
+    hashedPassword: string
+    identity: Identity
+    identityCommitment: BigInt
+}
 
 export {
     UserNullifier,
     VotingCampaign,
     VotingInputs,
     IncrementalQuinTree,
+    User
     // schema
 }

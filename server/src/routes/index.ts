@@ -19,5 +19,6 @@ router.get("/campaign/:name", Router.getCampain);
 router.get("/isValid/:identity", Router.isValid);
 router.post("/registVote", Router.registVote);
 router.post("/item",Router.item);
+router.post("/login",Router.login);
 
 export default router;
