@@ -27,6 +27,7 @@ const Router = {
 
             if (!voteCampaign) throw new Error("Invalid voting campaign");
             voteCampaign.stats[req.body.item] = 0;
+            voteCampaign.options.push(req.body.item);
 
             res.json({ 'voteCampaign': voteCampaign });
         } catch (e: any) {
